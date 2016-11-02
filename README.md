@@ -1,7 +1,8 @@
 # nosuspend
-A little command-line tool to avoid computer suspend as long a app is running
-It requires systemd running.
+A little command-line tool for systems using systemd.
 
-Usage is simply: nosuspend appname -parameter for appname
+nosuspend blocks computer suspend while another command-line operation is running.
 
-nosuspend set the systemd-inhibit flag with UID 0/root.
+To use, simply run before another command as in: nosuspend appname -parameter for appname
+
+nosuspend sets the systemd-inhibit flag with UID 0/root.
