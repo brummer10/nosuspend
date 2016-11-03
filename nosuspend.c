@@ -8,8 +8,23 @@
  /*   chown -v root:root ./nosuspend    */
  /*   chmod -v 4755 ./nosuspend         */
 
+void show_help(char* arg) {
+    fprintf(stderr, 
+    "nosuspend blocks computer suspend while another "
+    "command-line operation is running\n"
+    "Usage: %s  executable arg arg2 . . \n", arg);
+}
+
 int main(int argc,char* argv[]){
-    if(argc<2) return 0;
+
+    if (getopt(argc, argv, "h") != -1) {
+        show_help(argv[0]);
+        return 0;
+    } else if(argc<2) {
+        show_help(argv[0]);
+        return 0;
+    }
+
     if(fork() == 0){
         int status;
         char uname[100];

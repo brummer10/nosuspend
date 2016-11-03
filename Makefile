@@ -31,5 +31,5 @@ uninstall :
 	@rm -rf $(BASH_CDIR)/$(BASHCOM) 
 	@echo ". ., uninstalled"
 
-$(NAME) : 
+$(NAME) : $(OBJECTS)
 	gcc $(OBJECTS) -o $(NAME)
