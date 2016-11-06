@@ -1,4 +1,14 @@
 # bash completion for nosuspend
 
 
-complete -F _nosuspend exec
+_nosuspend()
+{
+    local cur prev
+
+    COMPREPLY=()
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+    executables=$({ compgen -c; compgen -abkA function; } | sort | uniq -u)
+    COMPREPLY=( $( compgen -W "$executables" -- "$cur" ) )
+}
+complete -F _nosuspend nosuspend
