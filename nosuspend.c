@@ -17,7 +17,7 @@ void show_help(char* arg) {
 
 int main(int argc,char* argv[]){
 
-    if (getopt(argc, argv, "h") != -1) {
+    if ((strcmp(argv[1], "-h") == 0) ||(strcmp(argv[1], "--help")== 0)) {
         show_help(argv[0]);
         return 0;
     } else if(argc<2) {
@@ -26,7 +26,6 @@ int main(int argc,char* argv[]){
     }
 
     if(fork() == 0){
-        int status;
         char uname[100];
         getlogin_r(uname,100);
         char cmd[5000];
@@ -42,7 +41,8 @@ int main(int argc,char* argv[]){
         }
         strcat(cmd, " '");
         setuid(0);
-        status = system(cmd);
+        system(cmd);
+        //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
         exit(0);
     }
     return 0;
