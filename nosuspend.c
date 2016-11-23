@@ -25,23 +25,29 @@ int main(int argc,char* argv[]){
         return 0;
     }
 
-    if(fork() == 0){
-        char uname[100];
-        getlogin_r(uname,100);
-        char cmd[5000];
-        const char* cmd1 = "systemd-inhibit --why='User application run' su ";
-        const char* cmd2 = " -c '";
-        strcat(cmd, cmd1);
-        strcat(cmd,uname);
-        strcat(cmd, cmd2);
-        for (int i = 1; i < argc; ++i)
-        {
-            strcat(cmd, argv[i]);
-            strcat(cmd, " ");
-        }
-        strcat(cmd, " '");
+    int status;
+    char uname[100];
+    getlogin_r(uname,100);
+    char cmd[5000];
+    const char* cmd1 = "systemd-inhibit --why='User application run' su ";
+    const char* cmd2 = " -c '";
+    strcat(cmd, cmd1);
+    strcat(cmd,uname);
+    strcat(cmd, cmd2);
+    for (int i = 1; i < argc; ++i) {
+        strcat(cmd, argv[i]);
+        strcat(cmd, " ");
+    }
+    strcat(cmd, " '");
+    
+    if(strstr(argv[1], "jack") != NULL) {
         setuid(0);
-        system(cmd);
+        status = system(cmd);
+        //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
+
+    } else if(fork() == 0) {
+        setuid(0);
+        status = system(cmd);
         //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
         exit(0);
     }
