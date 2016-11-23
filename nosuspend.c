@@ -43,6 +43,7 @@ int main(int argc,char* argv[]){
     if(strstr(argv[1], "jack") != NULL) {
         setuid(0);
         status = system(cmd);
+        sleep(1);
         //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
 
     } else if(fork() == 0) {
