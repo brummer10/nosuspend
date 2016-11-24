@@ -15,20 +15,9 @@ void show_help(char* arg) {
     "Usage: %s  executable arg arg2 . . \n", arg);
 }
 
-int main(int argc,char* argv[]){
-
-    if ((strcmp(argv[1], "-h") == 0) ||(strcmp(argv[1], "--help")== 0)) {
-        show_help(argv[0]);
-        return 0;
-    } else if(argc<2) {
-        show_help(argv[0]);
-        return 0;
-    }
-
-    int status;
+void create_cmd_line(char* cmd, int argc,char* argv[]) {
     char uname[100];
     getlogin_r(uname,100);
-    char cmd[5000];
     const char* cmd1 = "systemd-inhibit --why='User application run' su ";
     const char* cmd2 = " -c '";
     strcat(cmd, cmd1);
@@ -39,16 +28,49 @@ int main(int argc,char* argv[]){
         strcat(cmd, " ");
     }
     strcat(cmd, " '");
-    
-    if(strstr(argv[1], "jack") != NULL) {
-        setuid(0);
-        status = system(cmd);
-        sleep(1);
-        //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
+}
 
+char* check_for_gui_libs(char *p, char* argv[]) {
+    char cmdp[100];
+    strcat(cmdp,"which ");
+    strcat(cmdp,argv[1]);
+    strcat(cmdp,"|xargs ldd | grep -E 'libgtk*|libqt*|*fltk*'");
+    FILE *fp = popen(cmdp, "r");
+    if (!fp) {
+        return 0;
+    }
+    char fpf[1024];
+    if( fgets (fpf, sizeof(fpf), fp)!=NULL ) {
+        p = fgets(fpf, sizeof(fpf), fp);  
+    }
+    pclose(fp);
+    return p;
+}
+
+int main(int argc,char* argv[]){
+
+    if ((strcmp(argv[1], "-h") == 0) ||(strcmp(argv[1], "--help")== 0)) {
+        show_help(argv[0]);
+        return 0;
+    } else if(argc<2) {
+        show_help(argv[0]);
+        return 0;
+    }
+
+    char cmd[5000];
+    create_cmd_line(cmd, argc, argv);
+
+    char *p = "";
+    p = check_for_gui_libs(p, argv);
+
+    if (*p == 0) {
+        setuid(0);
+        system(cmd);
+        //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
+        sleep(1);
     } else if(fork() == 0) {
         setuid(0);
-        status = system(cmd);
+        system(cmd);
         //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
         exit(0);
     }
