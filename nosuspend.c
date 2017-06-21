@@ -72,6 +72,11 @@ int main(int argc,char* argv[]){
         show_help(argv[0]);
         return 0;
     }
+    
+    if (system("which screen 2>&1 >/dev/null")!=0) {
+        fprintf(stderr, "couldn't find 'screen', please install it to use nosuspend\n");
+        exit(1);
+    }
 
     char cmd[5000];
 
