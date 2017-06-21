@@ -30,6 +30,22 @@ void create_cmd_line(char* cmd, int argc,char* argv[]) {
     strcat(cmd, " '");
 }
 
+void create_cmd_line_with_screen(char* cmd, int argc,char* argv[]) {
+    char uname[100];
+    getlogin_r(uname,100);
+    const char* cmd1 = "systemd-inhibit --why='User application run' su ";
+    const char* cmd2 = " -c '";
+    strcat(cmd, cmd1);
+    strcat(cmd,uname);
+    strcat(cmd, cmd2);
+    strcat(cmd, "screen ");
+    for (int i = 1; i < argc; ++i) {
+        strcat(cmd, argv[i]);
+        strcat(cmd, " ");
+    }
+    strcat(cmd, " '");
+}
+
 char* check_for_gui_libs(char *p, char* argv[]) {
     char cmdp[100];
     strcat(cmdp,"which ");
@@ -58,17 +74,18 @@ int main(int argc,char* argv[]){
     }
 
     char cmd[5000];
-    create_cmd_line(cmd, argc, argv);
 
     char *p = "";
     p = check_for_gui_libs(p, argv);
 
     if (*p == 0) {
+        create_cmd_line_with_screen(cmd, argc, argv);
         setuid(0);
         system(cmd);
         //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
         sleep(1);
     } else if(fork() == 0) {
+        create_cmd_line(cmd, argc, argv);
         setuid(0);
         system(cmd);
         //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
