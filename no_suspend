@@ -12,3 +12,4 @@ _nosuspend()
     COMPREPLY=( $( compgen -W "$executables" -- "$cur" ) )
 }
 complete -F _nosuspend nosuspend
+complete -cf nosuspend

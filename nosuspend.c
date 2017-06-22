@@ -15,7 +15,7 @@ void show_help(char* arg) {
     "Usage: %s  executable arg arg2 . . \n", arg);
 }
 
-void create_cmd_line(char* cmd, int argc,char* argv[]) {
+void create_cmd_line(char* cmd, int argc,char* argv[], int sc) {
     char uname[100];
     getlogin_r(uname,100);
     const char* cmd1 = "systemd-inhibit --why='User application run' su ";
@@ -23,22 +23,7 @@ void create_cmd_line(char* cmd, int argc,char* argv[]) {
     strcat(cmd, cmd1);
     strcat(cmd,uname);
     strcat(cmd, cmd2);
-    for (int i = 1; i < argc; ++i) {
-        strcat(cmd, argv[i]);
-        strcat(cmd, " ");
-    }
-    strcat(cmd, " '");
-}
-
-void create_cmd_line_with_screen(char* cmd, int argc,char* argv[]) {
-    char uname[100];
-    getlogin_r(uname,100);
-    const char* cmd1 = "systemd-inhibit --why='User application run' su ";
-    const char* cmd2 = " -c '";
-    strcat(cmd, cmd1);
-    strcat(cmd,uname);
-    strcat(cmd, cmd2);
-    strcat(cmd, "screen ");
+    if (sc) strcat(cmd, "screen ");
     for (int i = 1; i < argc; ++i) {
         strcat(cmd, argv[i]);
         strcat(cmd, " ");
@@ -84,13 +69,13 @@ int main(int argc,char* argv[]){
     p = check_for_gui_libs(p, argv);
 
     if (*p == 0) {
-        create_cmd_line_with_screen(cmd, argc, argv);
+        create_cmd_line(cmd, argc, argv, 1);
         setuid(0);
         system(cmd);
         //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
         sleep(1);
     } else if(fork() == 0) {
-        create_cmd_line(cmd, argc, argv);
+        create_cmd_line(cmd, argc, argv, 0);
         setuid(0);
         system(cmd);
         //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
