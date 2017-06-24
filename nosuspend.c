@@ -64,7 +64,12 @@ int main(int argc,char* argv[]){
     }
 
     char cmd[5000];
-    int bz = 0;    
+    if (strlen(argv[1]) > 45) {
+        fprintf(stderr, "first arg is to long my friend \n");
+        exit(1);
+    }
+
+    int bz = 0;
     for (int i = 0; i < argc; ++i) {
         bz += strlen(argv[i]);
         if (bz>4000) {
