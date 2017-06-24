@@ -4,6 +4,10 @@ A little command-line tool for systems using systemd.
 nosuspend sets the systemd-inhibit flag with UID 0/root in order to block
 computer suspend while another command-line operation is running.
 
+## dependencys
+
+nosuspend needs the commanline tool screen to be installed
+
 ## installation
 
 just clone the repo, `cd nosuspend`, then `sudo make install`
