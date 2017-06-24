@@ -64,6 +64,14 @@ int main(int argc,char* argv[]){
     }
 
     char cmd[5000];
+    int bz = 0;    
+    for (int i = 0; i < argc; ++i) {
+        bz += strlen(argv[i]);
+    }
+    if (bz>4000) {
+        fprintf(stderr, " arg list is to long my friend \n", bz);
+        exit(1);
+    }
 
     char *p = "";
     p = check_for_gui_libs(p, argv);
