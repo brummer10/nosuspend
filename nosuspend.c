@@ -48,6 +48,31 @@ char* check_for_gui_libs(char *p, char* argv[]) {
     return p;
 }
 
+int check_user_input(int argc,char* argv[]){
+
+    if (strlen(argv[1]) > 45) {
+        fprintf(stderr, "first arg is to long my friend \n");
+        return 1;
+    }
+    
+    int bz = 0;
+    const char nogo[] = "&;";
+    char *ret = NULL;
+    for (int i = 0; i < argc; ++i) {
+        bz += strlen(argv[i]);
+        ret = strpbrk(argv[i],nogo);
+        if (bz>4000) {
+            fprintf(stderr, "arg list is to long my friend \n");
+            return 1;
+        }
+        if (ret) {
+            fprintf(stderr, "arg (& ;) is not allowed \n");
+            return 1;            
+        }
+    }
+    return 0;
+}
+
 int main(int argc,char* argv[]){
 
     if ((strcmp(argv[1], "-h") == 0) ||(strcmp(argv[1], "--help")== 0)) {
@@ -63,20 +88,9 @@ int main(int argc,char* argv[]){
         exit(1);
     }
 
-    char cmd[5000];
-    if (strlen(argv[1]) > 45) {
-        fprintf(stderr, "first arg is to long my friend \n");
-        exit(1);
-    }
+    if (check_user_input(argc, argv)) exit(1);
 
-    int bz = 0;
-    for (int i = 0; i < argc; ++i) {
-        bz += strlen(argv[i]);
-        if (bz>4000) {
-            fprintf(stderr, "arg list is to long my friend \n");
-            exit(1);
-        }
-    }
+    char cmd[5000];
 
     char *p = "";
     p = check_for_gui_libs(p, argv);
