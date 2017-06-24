@@ -67,10 +67,10 @@ int main(int argc,char* argv[]){
     int bz = 0;    
     for (int i = 0; i < argc; ++i) {
         bz += strlen(argv[i]);
-    }
-    if (bz>4000) {
-        fprintf(stderr, " arg list is to long my friend \n", bz);
-        exit(1);
+        if (bz>4000) {
+            fprintf(stderr, "arg list is to long my friend \n");
+            exit(1);
+        }
     }
 
     char *p = "";
