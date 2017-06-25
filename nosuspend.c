@@ -17,7 +17,11 @@ void show_help(char* arg) {
 
 void create_cmd_line(char* cmd, int argc,char* argv[], int sc) {
     char uname[100] = "\0";
-    getlogin_r(uname,100);
+    if (getlogin_r(uname,100)) {
+        fprintf(stderr, "Fail to get user name, exit here\n");
+        exit(1);
+        }
+    
     const char* cmd1 = "systemd-inhibit --why='User application run' su ";
     const char* cmd2 = " -c '";
     strcat(cmd, cmd1);
@@ -104,13 +108,19 @@ int main(int argc,char* argv[]){
 
     if (*p == 0) {
         create_cmd_line(cmd, argc, argv, 1);
-        setuid(0);
+        if (setuid(0)<0) {
+            fprintf(stderr, "Fail to set permission, exit here\n");
+            exit(1);
+        }
         system(cmd);
         //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
         sleep(1);
     } else if(fork() == 0) {
         create_cmd_line(cmd, argc, argv, 0);
-        setuid(0);
+        if (setuid(0)<0) {
+            fprintf(stderr, "Fail to set permission, exit here\n");
+            exit(1);
+        }
         system(cmd);
         //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
         exit(0);
