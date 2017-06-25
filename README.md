@@ -7,7 +7,7 @@ computer suspend while another command-line operation is running.
 ## warning
 
 This program use setuid() and system(), 
-I try to keep it as save as possible, 
+I try to keep it as safe as possible, 
 but it may still be used for command injection vulnerability.
 So, be warned before you clone and use it. 
 
