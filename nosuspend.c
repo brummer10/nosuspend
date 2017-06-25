@@ -56,8 +56,9 @@ int check_user_input(int argc,char* argv[]){
     }
     
     int bz = 0;
-    const char nogo[] = "&;|";
+    const char nogo[] = "&;|$><`\\!";
     char *ret = NULL;
+    char junk;
     for (int i = 0; i < argc; ++i) {
         bz += strlen(argv[i]);
         ret = strpbrk(argv[i],nogo);
@@ -66,8 +67,8 @@ int check_user_input(int argc,char* argv[]){
             return 1;
         }
         if (ret) {
-            fprintf(stderr, "arg (& ; |) is not allowed \n");
-            return 1;            
+            fprintf(stderr, "arg (& ; | $ > < ` \\ ! ) is not allowed \n");
+            return 1;
         }
     }
     return 0;
