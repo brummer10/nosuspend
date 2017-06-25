@@ -16,7 +16,7 @@ void show_help(char* arg) {
 }
 
 void create_cmd_line(char* cmd, int argc,char* argv[], int sc) {
-    char uname[100];
+    char uname[100] = "\0";
     getlogin_r(uname,100);
     const char* cmd1 = "systemd-inhibit --why='User application run' su ";
     const char* cmd2 = " -c '";
@@ -29,10 +29,11 @@ void create_cmd_line(char* cmd, int argc,char* argv[], int sc) {
         strcat(cmd, " ");
     }
     strcat(cmd, " '");
+    //fprintf(stderr,"%s\n",cmd);
 }
 
 char* check_for_gui_libs(char *p, char* argv[]) {
-    char cmdp[100];
+    char cmdp[100] = "\0";
     strcat(cmdp,"which ");
     strcat(cmdp,argv[1]);
     strcat(cmdp,"|xargs ldd | grep -E 'libgtk*|libqt*|*fltk*'");
@@ -40,7 +41,7 @@ char* check_for_gui_libs(char *p, char* argv[]) {
     if (!fp) {
         return 0;
     }
-    char fpf[1024];
+    char fpf[1024] = "\0";
     if( fgets (fpf, sizeof(fpf), fp)!=NULL ) {
         p = fgets(fpf, sizeof(fpf), fp);  
     }
@@ -59,10 +60,9 @@ int check_user_input(int argc,char* argv[]){
     int bzgo = 0;
     const char nogo[] = "&;|$><`\\!";
     char *ret = NULL;
-    char junk;
     for (int i = 0; i < argc; ++i) {
         bz += strlen(argv[i]);
-        bzgo +=strspn(argv[i],". ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_/'-?");
+        bzgo +=strspn(argv[i],". ABCDEFGHIJKLMNOPQRSTUVWXYZÄÜÖabcdefghijklmnopqrstuvwxyzäüöß0123456789_/'-?");
         ret = strpbrk(argv[i],nogo);
         if (bz>4000) {
             fprintf(stderr, "arg list is to long my friend \n");
@@ -97,7 +97,7 @@ int main(int argc,char* argv[]){
 
     if (check_user_input(argc, argv)) exit(1);
 
-    char cmd[5000];
+    char cmd[5000] = "\0";
 
     char *p = "";
     p = check_for_gui_libs(p, argv);
