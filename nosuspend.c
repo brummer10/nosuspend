@@ -3,16 +3,37 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <string.h>
+#include <spawn.h>
+#include <sys/wait.h>
 
  /*   gcc -o nosuspend nosuspend.c        */
  /*   chown -v root:root ./nosuspend    */
  /*   chmod -v 4755 ./nosuspend         */
+
+extern char **environ;
 
 void show_help(char* arg) {
     fprintf(stderr, 
     "nosuspend blocks computer suspend while another "
     "command-line operation is running\n"
     "Usage: %s  executable arg arg2 . . \n", arg);
+}
+
+void run_cmd(char *cmd)
+{
+    pid_t pid;
+    char *arg[] = {"sh", "-c", cmd, NULL};
+    int status;
+   // printf("Run command: %s\n", cmd);
+    status = posix_spawn(&pid, "/bin/sh", NULL, NULL, arg, environ);
+    if (status == 0) {
+       // printf("Child pid: %i\n", pid);
+        if (waitpid(pid, &status, 0) == -1) {
+            perror("waitpid");
+        }
+    } else {
+        printf("posix_spawn: %s\n", strerror(status));
+    }
 }
 
 void create_cmd_line(char* cmd, int argc,char* argv[], int sc) {
@@ -22,7 +43,7 @@ void create_cmd_line(char* cmd, int argc,char* argv[], int sc) {
         exit(1);
         }
     
-    const char* cmd1 = "systemd-inhibit --why='User application run' su ";
+    const char* cmd1 = "/bin/systemd-inhibit --why='User application run' su ";
     const char* cmd2 = " -c '";
     strcat(cmd, cmd1);
     strcat(cmd,uname);
@@ -112,8 +133,7 @@ int main(int argc,char* argv[]){
             fprintf(stderr, "Fail to set permission, exit here\n");
             exit(1);
         }
-        system(cmd);
-        //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
+        run_cmd(cmd);
         sleep(1);
     } else if(fork() == 0) {
         create_cmd_line(cmd, argc, argv, 0);
@@ -121,8 +141,7 @@ int main(int argc,char* argv[]){
             fprintf(stderr, "Fail to set permission, exit here\n");
             exit(1);
         }
-        system(cmd);
-        //execlp("/bin/sh","/bin/sh","-c",cmd,NULL);
+        run_cmd(cmd);
         exit(0);
     }
     return 0;

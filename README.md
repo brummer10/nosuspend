@@ -6,10 +6,12 @@ computer suspend while another command-line operation is running.
 
 ## warning
 
-This program use setuid() and system(), 
-I try to keep it as safe as possible, 
+This program use the setuid() root bit and exec the given commandline via
+posix_spawn(). The given commandline will executed without root rights,
 but it may still be used for command injection vulnerability.
-So, be warned before you clone and use it. 
+I try to keep it as safe as possible, 
+but, be warned before you clone and use it. 
+It may reduce the safety of your system.
 
 ## dependencies
 
