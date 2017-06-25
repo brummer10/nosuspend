@@ -56,11 +56,13 @@ int check_user_input(int argc,char* argv[]){
     }
     
     int bz = 0;
+    int bzgo = 0;
     const char nogo[] = "&;|$><`\\!";
     char *ret = NULL;
     char junk;
     for (int i = 0; i < argc; ++i) {
         bz += strlen(argv[i]);
+        bzgo +=strspn(argv[i],". ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_/'-?");
         ret = strpbrk(argv[i],nogo);
         if (bz>4000) {
             fprintf(stderr, "arg list is to long my friend \n");
@@ -68,6 +70,10 @@ int check_user_input(int argc,char* argv[]){
         }
         if (ret) {
             fprintf(stderr, "arg (& ; | $ > < ` \\ ! ) is not allowed \n");
+            return 1;
+        }
+        if (bz != bzgo) {
+            fprintf(stderr, "arg contain not allowed chars \n");
             return 1;
         }
     }
