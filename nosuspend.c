@@ -87,7 +87,7 @@ int check_user_input(int argc,char* argv[]){
     char *ret = NULL;
     for (int i = 0; i < argc; ++i) {
         bz += strlen(argv[i]);
-        bzgo +=strspn(argv[i],". ABCDEFGHIJKLMNOPQRSTUVWXYZÄÜÖabcdefghijklmnopqrstuvwxyzäüöß0123456789_/'-?");
+        bzgo +=strspn(argv[i],". ABCDEFGHIJKLMNOPQRSTUVWXYZÄÜÖabcdefghijklmnopqrstuvwxyzäüöß0123456789_/'-?*~:%");
         ret = strpbrk(argv[i],nogo);
         if (bz>4000) {
             fprintf(stderr, "arg list is to long my friend \n");
