@@ -19,10 +19,10 @@ ifeq (,$(wildcard $(POLICY)))
 	@cp com.ubuntu.pkexec.inhibit.policy.secure $(POLICY)
 endif
 
-relaxed :
+relaxed : all
 	@cp com.ubuntu.pkexec.inhibit.policy.relaxed $(POLICY)
 
-secure :
+secure : all
 	@cp com.ubuntu.pkexec.inhibit.policy.secure $(POLICY)
 
 clean :
