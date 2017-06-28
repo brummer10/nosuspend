@@ -6,8 +6,9 @@ computer suspend while another command-line operation is running.
 
 ## warning
 
-This program install a PolKit rule which allow active users to run 
+This program could install a PolKit rule which allow active users to run 
 `systemd-inhibit` with the UID 0/root flag without password.
+The default setting is with password.
 
 ## why
 
@@ -21,7 +22,21 @@ nosuspend needs the commandline tool `screen` to be installed
 
 ## installation
 
-just clone the repo, `cd nosuspend`, then `sudo make install`
+just clone the repo, `cd nosuspend`, 
+
+you could build in to different fashions, 
+
+`make secure` or `make`
+
+will build with a policy file which requiers you to enter root passphrase
+to use nosupend.
+This is the default.
+
+`make relaxed`
+
+will build with a policy file witch allow the use without root passphrase
+
+then `sudo make install`
 
 ## how to use
 
