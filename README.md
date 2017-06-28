@@ -9,6 +9,12 @@ computer suspend while another command-line operation is running.
 This program install a PolKit rule which allow active users to run 
 `systemd-inhibit` with the UID 0/root flag without password.
 
+## why
+
+To allow users to avoid suspend or shutdown even on privileged level (e.g. root) 
+when a running user process shouldn't be interrupted.
+In addition nosuspend provide bash completion for easily comand substitution.
+
 ## dependencies
 
 nosuspend needs the commandline tool `screen` to be installed
