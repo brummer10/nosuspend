@@ -15,9 +15,19 @@
 .PHONY : all clean install uninstall 
 
 all : $(NAME)
+ifeq (,$(wildcard $(POLICY)))
+	@cp com.ubuntu.pkexec.inhibit.policy.secure $(POLICY)
+endif
+
+relaxed :
+	@cp com.ubuntu.pkexec.inhibit.policy.relaxed $(POLICY)
+
+secure :
+	@cp com.ubuntu.pkexec.inhibit.policy.secure $(POLICY)
 
 clean :
 	@rm -f $(NAME)
+	@rm -f $(POLICY)
 	@echo ". ., clean"
 
 install : all 
@@ -25,7 +35,7 @@ install : all
 	@mkdir -p $(DESTDIR)$(BASH_CDIR)
 	@cp $(NAME) $(DESTDIR)$(BIN_DIR)
 	@cp $(BASHCOM) $(BASH_CDIR)
-ifeq (,$(wildcard /usr/share/polkit-1/actions/com.ubuntu.pkexec.inhibit.policy))
+ifeq (,$(wildcard $(POLICY_DIR)/$(POLICY)))
 	@cp $(POLICY) $(POLICY_DIR)
 	@systemctl restart polkitd
 endif
