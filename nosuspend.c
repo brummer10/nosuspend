@@ -35,28 +35,30 @@ void run_cmd(char *cmd)
 }
 
 void create_cmd_line(char* cmd, int argc,char* argv[], int sc) {
-    char uname[100] = "\0";
+    char uname[100] = {"\0",};
     if (getlogin_r(uname,100)) {
         fprintf(stderr, "Fail to get user name, exit here\n");
         exit(1);
         }
     
-    const char* cmd1 = "pkexec /bin/systemd-inhibit --why='User application run' su ";
+    const char* cmd1 = "/bin/systemd-inhibit --why='User application run' su ";
     const char* cmd2 = " -c '";
     strcat(cmd, cmd1);
     strcat(cmd,uname);
     strcat(cmd, cmd2);
     if (sc) strcat(cmd, "screen ");
     for (int i = 1; i < argc; ++i) {
-        strcat(cmd, argv[i]);
-        strcat(cmd, " ");
+        if ((strcmp(argv[i],"--try-again") !=0)) {
+            strcat(cmd, argv[i]);
+            strcat(cmd, " ");
+        }
     }
     strcat(cmd, " '");
     //fprintf(stderr," cmd = %s", cmd);
 }
 
 char* check_for_gui_libs(char *p, char* argv[]) {
-    char cmdp[100] = "\0";
+    char cmdp[100] = {"\0",};
     strcat(cmdp,"which ");
     strcat(cmdp,argv[1]);
     strcat(cmdp,"|xargs ldd | grep -E 'libgtk*|libqt*|*fltk*'");
@@ -64,7 +66,7 @@ char* check_for_gui_libs(char *p, char* argv[]) {
     if (!fp) {
         return 0;
     }
-    char fpf[1024] = "\0";
+    char fpf[1024] = {"\0",};
     if( fgets (fpf, sizeof(fpf), fp)!=NULL ) {
         p = fgets(fpf, sizeof(fpf), fp);  
     }
@@ -73,7 +75,7 @@ char* check_for_gui_libs(char *p, char* argv[]) {
 }
 
 int check_user_input(int argc,char* argv[]){
-   // fprintf(stderr," argc = %i", argc);
+    //fprintf(stderr," argc = %i", argc);
     if (strlen(argv[1]) > 45) {
         fprintf(stderr, "first arg is to long my friend \n");
         return 1;
@@ -84,7 +86,7 @@ int check_user_input(int argc,char* argv[]){
     const char nogo[] = "&;|$><`\\!";
     char *ret = NULL;
     for (int i = 0; i < argc; ++i) {
-       // fprintf(stderr," argv = %s", argv[i]);
+        //fprintf(stderr," argv = %s", argv[i]);
         bz += strlen(argv[i]);
         bzgo +=strspn(argv[i],". ABCDEFGHIJKLMNOPQRSTUVWXYZÄÜÖabcdefghijklmnopqrstuvwxyzäüöß0123456789_/'-?*~:%");
         ret = strpbrk(argv[i],nogo);
@@ -104,6 +106,18 @@ int check_user_input(int argc,char* argv[]){
     return 0;
 }
 
+void create_first_cmd_line(char* cmd, int argc,char* argv[]) {
+    strcat(cmd, "pkexec ");
+    strcat(cmd, argv[0]);
+    strcat(cmd, " ");
+    for (int i = 1; i < argc; ++i) {
+        strcat(cmd, argv[i]);
+        strcat(cmd, " ");
+    }
+    strcat(cmd, " --try-again ");
+    //fprintf(stderr," cmd = %s", cmd);
+}
+
 int main(int argc,char* argv[]){
 
     if ((strcmp(argv[1], "-h") == 0) ||(strcmp(argv[1], "--help")== 0)) {
@@ -113,15 +127,29 @@ int main(int argc,char* argv[]){
         show_help(argv[0]);
         return 0;
     }
-    
+
+    char cmd[5000] = {"\0",};
+
+    if (geteuid () != 0 ) {
+        for (int i = 1; i < argc; ++i) {
+            if (strcmp(argv[i],"--try-again") ==0) {
+                fprintf(stderr," Error executing command: Request dismissed");
+                exit(1);
+            }
+        }
+        create_first_cmd_line(cmd, argc, argv);
+        run_cmd(cmd);
+        exit(0);
+    }
+
     if (system("which screen 2>&1 >/dev/null")!=0) {
         fprintf(stderr, "couldn't find 'screen', please install it to use nosuspend\n");
         exit(1);
     }
 
-    if (check_user_input(argc, argv)) exit(1);
-
-    char cmd[5000] = "\0";
+    if (check_user_input(argc, argv)) {
+        exit(1);
+    }
 
     char *p = "";
     p = check_for_gui_libs(p, argv);
