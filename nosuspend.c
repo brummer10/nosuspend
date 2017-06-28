@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <string.h>
 #include <spawn.h>
-#include <sys/wait.h>
 
  /*   gcc -o nosuspend nosuspend.c        */
  /*   chown -v root:root ./nosuspend    */
@@ -24,15 +24,13 @@ void run_cmd(char *cmd)
     pid_t pid;
     char *arg[] = {"sh", "-c", cmd, NULL};
     int status;
-   // printf("Run command: %s\n", cmd);
     status = posix_spawn(&pid, "/bin/sh", NULL, NULL, arg, environ);
     if (status == 0) {
-       // printf("Child pid: %i\n", pid);
         if (waitpid(pid, &status, 0) == -1) {
             perror("waitpid");
         }
     } else {
-        printf("posix_spawn: %s\n", strerror(status));
+        fprintf(stderr,"posix_spawn: %s\n", strerror(status));
     }
 }
 
@@ -43,7 +41,7 @@ void create_cmd_line(char* cmd, int argc,char* argv[], int sc) {
         exit(1);
         }
     
-    const char* cmd1 = "/bin/systemd-inhibit --why='User application run' su ";
+    const char* cmd1 = "pkexec /bin/systemd-inhibit --why='User application run' su ";
     const char* cmd2 = " -c '";
     strcat(cmd, cmd1);
     strcat(cmd,uname);
@@ -54,7 +52,7 @@ void create_cmd_line(char* cmd, int argc,char* argv[], int sc) {
         strcat(cmd, " ");
     }
     strcat(cmd, " '");
-    //fprintf(stderr,"%s\n",cmd);
+    //fprintf(stderr," cmd = %s", cmd);
 }
 
 char* check_for_gui_libs(char *p, char* argv[]) {
@@ -75,7 +73,7 @@ char* check_for_gui_libs(char *p, char* argv[]) {
 }
 
 int check_user_input(int argc,char* argv[]){
-
+   // fprintf(stderr," argc = %i", argc);
     if (strlen(argv[1]) > 45) {
         fprintf(stderr, "first arg is to long my friend \n");
         return 1;
@@ -86,6 +84,7 @@ int check_user_input(int argc,char* argv[]){
     const char nogo[] = "&;|$><`\\!";
     char *ret = NULL;
     for (int i = 0; i < argc; ++i) {
+       // fprintf(stderr," argv = %s", argv[i]);
         bz += strlen(argv[i]);
         bzgo +=strspn(argv[i],". ABCDEFGHIJKLMNOPQRSTUVWXYZÄÜÖabcdefghijklmnopqrstuvwxyzäüöß0123456789_/'-?*~:%");
         ret = strpbrk(argv[i],nogo);
@@ -129,18 +128,10 @@ int main(int argc,char* argv[]){
 
     if (*p == 0) {
         create_cmd_line(cmd, argc, argv, 1);
-        if (setuid(0)<0) {
-            fprintf(stderr, "Fail to set permission, exit here\n");
-            exit(1);
-        }
         run_cmd(cmd);
         sleep(1);
-    } else if(fork() == 0) {
+    } else {
         create_cmd_line(cmd, argc, argv, 0);
-        if (setuid(0)<0) {
-            fprintf(stderr, "Fail to set permission, exit here\n");
-            exit(1);
-        }
         run_cmd(cmd);
         exit(0);
     }
