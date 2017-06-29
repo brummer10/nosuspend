@@ -33,6 +33,12 @@ to use nosupend.
 
 This will build with a policy file which allows nosuspend to run without asking for a root passphrase.
 
+## uninstall
+
+To uninstall nosuspend run
+
+`sudo make uninstall`
+
 ## how to use
 
 To use nosuspend, simply run before another command as in:
