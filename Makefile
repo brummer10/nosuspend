@@ -11,19 +11,24 @@
 	OBJECTS = $(NAME).c
 	BASHCOM = no_suspend
 	POLICY = com.ubuntu.pkexec.inhibit.policy
+	POLICY_SECURE = com.ubuntu.pkexec.inhibit.policy.secure
+	POLICY_RELAXED = com.ubuntu.pkexec.inhibit.policy.relaxed
 
 .PHONY : all clean install uninstall 
 
-all : $(NAME)
+all : config.h $(NAME)
 ifeq (,$(wildcard $(POLICY)))
-	@cp com.ubuntu.pkexec.inhibit.policy.secure $(POLICY)
+	@cp $(POLICY_SECURE) $(POLICY)
 endif
 
 relaxed : all
-	@cp com.ubuntu.pkexec.inhibit.policy.relaxed $(POLICY)
+	@cp $(POLICY_RELAXED) $(POLICY)
 
 secure : all
-	@cp com.ubuntu.pkexec.inhibit.policy.secure $(POLICY)
+	@cp $(POLICY_SECURE) $(POLICY)
+
+config.h : 
+	@echo '#define VERSION  "$(VER)"' > config.h 
 
 clean :
 	@rm -f $(NAME)
@@ -35,10 +40,7 @@ install : all
 	@mkdir -p $(DESTDIR)$(BASH_CDIR)
 	@cp $(NAME) $(DESTDIR)$(BIN_DIR)
 	@cp $(BASHCOM) $(BASH_CDIR)
-ifeq (,$(wildcard $(POLICY_DIR)/$(POLICY)))
 	@cp $(POLICY) $(POLICY_DIR)
-	@systemctl restart polkitd
-endif
 	@echo ". ., installed"
 
 uninstall :

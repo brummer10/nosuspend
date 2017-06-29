@@ -6,6 +6,8 @@
 #include <string.h>
 #include <spawn.h>
 
+#include "config.h"
+
  /*   gcc -o nosuspend nosuspend.c        */
  /*   chown -v root:root ./nosuspend    */
  /*   chmod -v 4755 ./nosuspend         */
@@ -19,8 +21,12 @@ void show_help(char* arg) {
     "Usage: %s  executable arg arg2 . . \n", arg);
 }
 
-void run_cmd(char *cmd)
-{
+void show_version(char* arg) {
+    fprintf(stderr, "nosuspend Version \033[1;32m %s \n \033[0m" 
+      "    GNU GENERAL PUBLIC LICENSE V.3 @ 2017 by Hermman Meyer\n", VERSION );
+}
+
+void run_cmd(char *cmd) {
     pid_t pid;
     char *arg[] = {"sh", "-c", cmd, NULL};
     int status;
@@ -74,7 +80,7 @@ char* check_for_gui_libs(char *p, char* argv[]) {
     return p;
 }
 
-int check_user_input(int argc,char* argv[]){
+int check_user_input(int argc,char* argv[]) {
     //fprintf(stderr," argc = %i", argc);
     if (strlen(argv[1]) > 45) {
         fprintf(stderr, "first arg is to long my friend \n");
@@ -122,6 +128,9 @@ int main(int argc,char* argv[]){
 
     if ((strcmp(argv[1], "-h") == 0) ||(strcmp(argv[1], "--help")== 0)) {
         show_help(argv[0]);
+        return 0;
+    } else if ((strcmp(argv[1], "-v") == 0) ||(strcmp(argv[1], "--version")== 0)) {
+        show_version(argv[0]);
         return 0;
     } else if(argc<2) {
         show_help(argv[0]);
