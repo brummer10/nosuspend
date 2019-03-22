@@ -29,11 +29,12 @@ Multiple options for the next step:
 This will build with a policy file which requires you to enter root passphrase
 to use nosupend.
 
-3B. operate without passphrase (less strictly secure): `make relaxed` then
-    `sudo make install`
+3B. operate without passphrase (less strictly secure): `make relaxed`
 
 This will build with a policy file which allows nosuspend to run without asking
 for a root passphrase.
+
+4. run `sudo make install` to install nosuspend to the system
 
 ## uninstall
 
